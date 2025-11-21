@@ -19,7 +19,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
 
   return (
     <View style={styles.container}>
-      <MaterialCommunityIcons name="lightning-bolt" size={80} color={COLORS.primary} />
+      <MaterialCommunityIcons name="lightning-bolt" size={80} color={COLORS.tertiary} />
       <Text style={styles.title}>Charging Tracker</Text>
       <Text style={styles.version}>v1.0</Text>
     </View>
@@ -31,17 +31,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.surface,
+    backgroundColor: COLORS.primary,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
     marginTop: 20,
-    color: COLORS.primary,
+    color: COLORS.surface,
   },
   version: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: COLORS.surface,
     marginTop: 10,
   },
 });
