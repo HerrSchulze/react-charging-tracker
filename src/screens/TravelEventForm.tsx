@@ -29,6 +29,17 @@ export const TravelEventForm: React.FC = () => {
   const [validationError, setValidationError] = useState<string | null>(null);
   const [errorVisible, setErrorVisible] = useState(false);
 
+  const loadEventData = async () => {
+    const repo = new TravelEventRepository();
+    const event = await repo.getById(id as string);
+    if (event) {
+      setName(event.name);
+      setDescription(event.description);
+      setStartDate(event.startDate);
+      setInitialCosts(event.initialCosts.toString());
+    }
+  };
+
   useEffect(() => {
     if (id && typeof id === 'string') {
       loadEventData();
@@ -40,17 +51,6 @@ export const TravelEventForm: React.FC = () => {
       setErrorVisible(true);
     }
   }, [error]);
-
-  const loadEventData = async () => {
-    const repo = new TravelEventRepository();
-    const event = await repo.getById(id as string);
-    if (event) {
-      setName(event.name);
-      setDescription(event.description);
-      setStartDate(event.startDate);
-      setInitialCosts(event.initialCosts.toString());
-    }
-  };
 
   const handleSubmit = async () => {
     const costs = parseFloat(initialCosts) || 0;

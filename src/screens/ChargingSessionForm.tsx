@@ -36,19 +36,6 @@ export const ChargingSessionForm: React.FC = () => {
   const [validationError, setValidationError] = useState<string | null>(null);
   const [errorVisible, setErrorVisible] = useState(false);
 
-  useEffect(() => {
-    loadTravelEvents(0);
-    if (id && typeof id === 'string') {
-      loadSessionData();
-    }
-  }, [id]);
-
-  useEffect(() => {
-    if (error) {
-      setErrorVisible(true);
-    }
-  }, [error]);
-
   const loadSessionData = async () => {
     const repo = new ChargingSessionRepository();
     const session = await repo.getById(id as string);
@@ -62,6 +49,19 @@ export const ChargingSessionForm: React.FC = () => {
       setTravelEventId(session.travelEventId);
     }
   };
+
+  useEffect(() => {
+    loadTravelEvents(0);
+    if (id && typeof id === 'string') {
+      loadSessionData();
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (error) {
+      setErrorVisible(true);
+    }
+  }, [error]);
 
   const handleSubmit = async () => {
     const energy = parseFloat(energyCharged) || 0;

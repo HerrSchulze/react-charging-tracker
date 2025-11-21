@@ -6,17 +6,19 @@ import { COLORS, SPACING } from '../constants';
 interface FloatingActionButtonProps {
   onPress: () => void;
   icon?: string;
+  style?: any;
 }
 
 export const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
   onPress,
   icon = 'plus',
+  style,
 }) => {
   return (
     <FAB
       icon={icon}
       onPress={onPress}
-      style={styles.fab}
+      style={[styles.fab, style]}
       color={COLORS.surface}
     />
   );
