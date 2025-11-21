@@ -1,24 +1,30 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import { PaperProvider } from 'react-native-paper';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { initializeDatabase } from '../src/services/database';
+import { ErrorBoundary } from '../src/components/ErrorBoundary';
+import { SplashScreen } from '../src/screens/SplashScreen';
+import { theme } from '../src/theme/theme';
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    initializeDatabase();
+  }, []);
+
+  if (showSplash) {
+    return <SplashScreen onFinish={() => setShowSplash(false)} />;
+  }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <ErrorBoundary>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <PaperProvider theme={theme}>
+          <Stack screenOptions={{ headerShown: false }} />
+        </PaperProvider>
+      </GestureHandlerRootView>
+    </ErrorBoundary>
   );
 }

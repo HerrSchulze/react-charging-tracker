@@ -1,0 +1,10 @@
+<svg viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(27, 27)">
+    <!-- Battery outline -->
+    <rect x="5" y="10" width="38" height="24" rx="2" fill="none" stroke="#FFFFFF" stroke-width="1.5"/>
+    <!-- Battery nub -->
+    <rect x="44" y="16" width="3" height="12" rx="0.5" fill="#FFFFFF"/>
+    <!-- Lightning bolt inside battery -->
+    <path d="M 17.5 14 L 22.5 21 L 19 21 L 25 30 L 15 22.5 L 19 22.5 Z" fill="#FFFFFF"/>
+  </g>
+</svg>
