@@ -48,7 +48,7 @@ export const ChargingSessionDetail: React.FC = () => {
 
   if (!session) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
         <AppBar title="Session Details" onBack={() => router.back()} />
         <View style={styles.center}>
           <Text>Session not found</Text>
@@ -60,7 +60,7 @@ export const ChargingSessionDetail: React.FC = () => {
   const costPerKwh = calculateCostPerKwh(session.totalCost, session.energyCharged);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
       <AppBar
         title={session.stationProvider}
         onBack={() => router.back()}
@@ -167,6 +167,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: SPACING.md,
+    paddingTop: 0,
   },
   center: {
     flex: 1,

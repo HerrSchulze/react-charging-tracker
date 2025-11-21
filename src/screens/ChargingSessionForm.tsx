@@ -116,7 +116,7 @@ export const ChargingSessionForm: React.FC = () => {
   }));
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
       <AppBar
         title={id ? 'Edit Session' : 'Create Session'}
         onBack={() => router.back()}
@@ -203,6 +203,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: SPACING.md,
+    paddingTop: 0,
     paddingBottom: 100,
   },
   dropdownContainer: {

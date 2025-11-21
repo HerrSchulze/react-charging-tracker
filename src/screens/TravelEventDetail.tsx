@@ -50,7 +50,7 @@ export const TravelEventDetail: React.FC = () => {
 
   if (!event) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
         <AppBar title="Event Details" onBack={() => router.back()} />
         <View style={styles.center}>
           <Text>Event not found</Text>
@@ -63,7 +63,7 @@ export const TravelEventDetail: React.FC = () => {
   const costPerKwh = calculateCostPerKwh(totalCost, totalEnergy);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
       <AppBar
         title={event.name}
         onBack={() => router.back()}
@@ -147,6 +147,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: SPACING.md,
+    paddingTop: 0,
   },
   center: {
     flex: 1,

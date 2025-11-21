@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   fab: {
-    marginBottom: 180,
+    marginBottom: -20,
   },
   titleBar: {
     paddingHorizontal: SPACING.md,

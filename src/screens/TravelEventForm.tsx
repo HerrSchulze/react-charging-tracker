@@ -86,7 +86,7 @@ export const TravelEventForm: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
       <AppBar title={id ? 'Edit Event' : 'Create Event'} onBack={() => router.back()} />
       <ErrorMessage
         message={error || ''}
@@ -146,6 +146,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: SPACING.md,
+    paddingTop: 0,
     paddingBottom: 100,
   },
   error: {

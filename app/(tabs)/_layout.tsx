@@ -11,8 +11,8 @@ export default function TabsLayout() {
   return (
     <View style={styles.container}>
       <Appbar.Header style={styles.appbar}>
-        <Appbar.Content title="Charging Tracker" />
-        <Appbar.Action icon="exit-to-app" onPress={() => router.replace('/')} />
+        <Appbar.Content title="Charging Tracker" titleStyle={styles.appbarTitle} />
+        <Appbar.Action icon="exit-to-app" iconColor={COLORS.surface} onPress={() => router.replace('/')} />
       </Appbar.Header>
       <Tabs
         screenOptions={{
@@ -62,6 +62,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   appbar: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: COLORS.primary,
+  },
+  appbarTitle: {
+    color: COLORS.surface,
+    fontWeight: 'bold',
   },
 });
