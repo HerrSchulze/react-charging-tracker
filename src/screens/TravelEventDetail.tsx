@@ -19,12 +19,6 @@ export const TravelEventDetail: React.FC = () => {
   const [totalEnergy, setTotalEnergy] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (id && typeof id === 'string') {
-      loadEventData();
-    }
-  }, [id]);
-
   const loadEventData = async () => {
     setLoading(true);
     const eventRepo = new TravelEventRepository();
@@ -43,6 +37,12 @@ export const TravelEventDetail: React.FC = () => {
 
     setLoading(false);
   };
+
+  useEffect(() => {
+    if (id && typeof id === 'string') {
+      loadEventData();
+    }
+  }, [id]);
 
   if (loading) {
     return <LoadingSpinner />;

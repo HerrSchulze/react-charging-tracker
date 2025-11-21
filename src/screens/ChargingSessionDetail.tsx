@@ -18,12 +18,6 @@ export const ChargingSessionDetail: React.FC = () => {
   const [event, setEvent] = useState<TravelEvent | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (id && typeof id === 'string') {
-      loadSessionData();
-    }
-  }, [id]);
-
   const loadSessionData = async () => {
     setLoading(true);
     const sessionRepo = new ChargingSessionRepository();
@@ -41,6 +35,12 @@ export const ChargingSessionDetail: React.FC = () => {
 
     setLoading(false);
   };
+
+  useEffect(() => {
+    if (id && typeof id === 'string') {
+      loadSessionData();
+    }
+  }, [id]);
 
   if (loading) {
     return <LoadingSpinner />;
