@@ -12,6 +12,7 @@ import {
   EmptyState,
   LoadingSpinner,
   ErrorMessage,
+  ConfirmDialog,
 } from '../components';
 import { formatDate } from '../utils/dateUtils';
 import { calculateCostPerKwh, roundToTwoDecimals } from '../utils/calculations';
@@ -32,6 +33,9 @@ export const TravelEventsList: React.FC = () => {
 
   const [sessionData, setSessionData] = useState<Record<string, any>>({});
   const [errorVisible, setErrorVisible] = useState(false);
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [sessionCounts, setSessionCounts] = useState<Record<string, number>>({});
 
   useFocusEffect(
     React.useCallback(() => {
@@ -49,14 +53,18 @@ export const TravelEventsList: React.FC = () => {
     const loadSessionData = async () => {
       const repo = new ChargingSessionRepository();
       const data: Record<string, any> = {};
+      const counts: Record<string, number> = {};
 
       for (const event of travelEvents) {
         const totalCost = await repo.getTotalCostByTravelEventId(event.id);
         const totalEnergy = await repo.getTotalEnergyByTravelEventId(event.id);
+        const sessions = await repo.getByTravelEventId(event.id);
         data[event.id] = { totalCost, totalEnergy };
+        counts[event.id] = sessions.length;
       }
 
       setSessionData(data);
+      setSessionCounts(counts);
     };
 
     if (travelEvents.length > 0) {
@@ -64,8 +72,17 @@ export const TravelEventsList: React.FC = () => {
     }
   }, [travelEvents]);
 
-  const handleDelete = async (id: string) => {
-    await deleteTravelEvent(id);
+  const handleDeletePress = (id: string) => {
+    setPendingDeleteId(id);
+    setDialogVisible(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (pendingDeleteId) {
+      await deleteTravelEvent(pendingDeleteId);
+      setPendingDeleteId(null);
+    }
+    setDialogVisible(false);
   };
 
   const handleNextPage = () => {
@@ -84,6 +101,18 @@ export const TravelEventsList: React.FC = () => {
     return <LoadingSpinner />;
   }
 
+  const getDeleteDialogMessage = (eventId: string) => {
+    const count = sessionCounts[eventId] || 0;
+    if (count > 0) {
+      return `This travel event has ${count} charging session${count !== 1 ? 's' : ''}. Please delete all connected sessions first.`;
+    }
+    return 'Are you sure you want to delete this travel event?';
+  };
+
+  const canDelete = (eventId: string) => {
+    return (sessionCounts[eventId] || 0) === 0;
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
       <View style={styles.titleBar}>
@@ -96,6 +125,17 @@ export const TravelEventsList: React.FC = () => {
           setErrorVisible(false);
           clearError();
         }}
+      />
+
+      <ConfirmDialog
+        visible={dialogVisible}
+        title={canDelete(pendingDeleteId || '') ? 'Delete Travel Event' : 'Cannot Delete'}
+        message={getDeleteDialogMessage(pendingDeleteId || '')}
+        confirmText={canDelete(pendingDeleteId || '') ? 'Delete' : 'OK'}
+        cancelText={canDelete(pendingDeleteId || '') ? 'Cancel' : ''}
+        onConfirm={canDelete(pendingDeleteId || '') ? handleConfirmDelete : () => setDialogVisible(false)}
+        onCancel={() => setDialogVisible(false)}
+        isDangerous={canDelete(pendingDeleteId || '')}
       />
 
       {travelEvents.length === 0 ? (
@@ -111,6 +151,7 @@ export const TravelEventsList: React.FC = () => {
               const totalEnergy = data.totalEnergy;
               const totalCost = item.initialCosts + totalChargingCost;
               const costPerKwh = calculateCostPerKwh(totalCost, totalEnergy);
+              const hasConnectedSessions = (sessionCounts[item.id] || 0) > 0;
 
               return (
                 <PaperCard
@@ -135,10 +176,11 @@ export const TravelEventsList: React.FC = () => {
                         />
                         <IconButton
                           icon="delete"
-                          iconColor={COLORS.error}
+                          iconColor={hasConnectedSessions ? COLORS.textSecondary : COLORS.error}
                           size={18}
                           style={styles.deleteButton}
-                          onPress={() => handleDelete(item.id)}
+                          disabled={hasConnectedSessions}
+                          onPress={() => handleDeletePress(item.id)}
                         />
                       </View>
                     </View>

@@ -12,3 +12,4 @@ export { Dropdown } from './Dropdown';
 export { FormButton } from './FormButton';
 export { ErrorBoundary } from './ErrorBoundary';
 export { LazyList } from './LazyList';
+export { ConfirmDialog } from './ConfirmDialog';
