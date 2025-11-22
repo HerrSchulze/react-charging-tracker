@@ -27,20 +27,20 @@ export default function TabsLayout() {
         }}
       >
         <Tabs.Screen
-          name="charging-sessions"
-          options={{
-            title: 'Charging',
-            tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="lightning-bolt" color={color} size={size} />
-            ),
-          }}
-        />
-        <Tabs.Screen
           name="travel-events"
           options={{
             title: 'Travel Events',
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="car" color={color} size={size} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="charging-sessions"
+          options={{
+            title: 'Charging',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="lightning-bolt" color={color} size={size} />
             ),
           }}
         />
