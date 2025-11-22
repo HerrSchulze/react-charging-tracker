@@ -1,18 +1,19 @@
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, BackHandler } from 'react-native';
 import { Tabs } from 'expo-router';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Appbar } from 'react-native-paper';
-import { useRouter } from 'expo-router';
 import { COLORS } from '../../src/constants';
 
 export default function TabsLayout() {
-  const router = useRouter();
+  const handleExit = () => {
+    BackHandler.exitApp();
+  };
 
   return (
     <View style={styles.container}>
       <Appbar.Header style={styles.appbar}>
         <Appbar.Content title="Charging Tracker" titleStyle={styles.appbarTitle} />
-        <Appbar.Action icon="exit-to-app" iconColor={COLORS.surface} onPress={() => router.replace('/')} />
+        <Appbar.Action icon="exit-to-app" iconColor={COLORS.surface} onPress={handleExit} />
       </Appbar.Header>
       <Tabs
         screenOptions={{
