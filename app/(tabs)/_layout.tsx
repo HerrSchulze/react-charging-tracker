@@ -42,7 +42,16 @@ export default function TabsLayout() {
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="lightning-bolt" color={color} size={size} />
             ),
+            href: { pathname: '/(tabs)/charging-sessions' },
           }}
+          listeners={({ navigation }) => ({
+            tabPress: (e) => {
+              const parent = navigation.getParent();
+              parent?.setOptions({
+                initialRouteName: 'charging-sessions',
+              });
+            },
+          })}
         />
         <Tabs.Screen
           name="export/index"
