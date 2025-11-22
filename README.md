@@ -10,6 +10,7 @@ A React Native Expo app for tracking EV charging sessions and travel events with
 - **Session Filtering**: Filter charging sessions by travel event
 - **Deletion Protection**: Prevent accidental deletion of travel events with connected sessions
 - **Confirmation Dialogs**: User confirmations for all delete operations
+- **Charge Card Autocomplete**: Smart autocomplete suggestions for charge card providers
 - **Data Export**: Export charging sessions and travel events as CSV files
 - **Offline-First**: SQLite database for local data storage
 - **Petrol-Themed UI**: Modern design with React Native Paper components
@@ -77,6 +78,7 @@ src/
 - Log charging sessions with station, location, energy, and cost
 - Link sessions to travel events
 - Track cost per kWh for each session
+- Autocomplete suggestions for charge card providers based on existing entries
 - Filter sessions by travel event using the query parameter
 - Clear filter with the close button in the title bar
 
@@ -110,6 +112,11 @@ npm run format     # Format code with Prettier
 - id, date, stationProvider, location, energyCharged, totalCost, chargeCardProvider, travelEventId, createdAt, updatedAt
 
 ## Version History
+
+### v1.3.0
+- Added autocomplete for charge card provider field with dropdown suggestions
+- Swapped tab order (Travel Events first, Charging Sessions second)
+- Fixed deprecated SafeAreaView import
 
 ### v1.2.0
 - Added charging session filtering by travel event
