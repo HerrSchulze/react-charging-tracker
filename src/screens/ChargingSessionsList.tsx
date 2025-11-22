@@ -12,6 +12,7 @@ import {
   EmptyState,
   LoadingSpinner,
   ErrorMessage,
+  ConfirmDialog,
 } from '../components';
 import { formatDate } from '../utils/dateUtils';
 import { calculateCostPerKwh, roundToTwoDecimals } from '../utils/calculations';
@@ -35,6 +36,8 @@ export const ChargingSessionsList: React.FC = () => {
   const [eventNames, setEventNames] = useState<Record<string, string>>({});
   const [errorVisible, setErrorVisible] = useState(false);
   const [travelEventName, setTravelEventName] = useState<string | null>(null);
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -89,8 +92,17 @@ export const ChargingSessionsList: React.FC = () => {
     }
   }, [chargingSessions, travelEventId]);
 
-  const handleDelete = async (id: string) => {
-    await deleteChargingSession(id);
+  const handleDeletePress = (id: string) => {
+    setPendingDeleteId(id);
+    setDialogVisible(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (pendingDeleteId) {
+      await deleteChargingSession(pendingDeleteId);
+      setPendingDeleteId(null);
+    }
+    setDialogVisible(false);
   };
 
   const handleNextPage = () => {
@@ -144,6 +156,17 @@ export const ChargingSessionsList: React.FC = () => {
         }}
       />
 
+      <ConfirmDialog
+        visible={dialogVisible}
+        title="Delete Charging Session"
+        message="Are you sure you want to delete this charging session?"
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDialogVisible(false)}
+        isDangerous={true}
+      />
+
       {chargingSessions.length === 0 ? (
         <EmptyState message="No charging sessions yet. Create one to get started!" icon="lightning-bolt" />
       ) : (
@@ -173,7 +196,7 @@ export const ChargingSessionsList: React.FC = () => {
                         iconColor={COLORS.error}
                         size={18}
                         style={styles.deleteButton}
-                        onPress={() => handleDelete(item.id)}
+                        onPress={() => handleDeletePress(item.id)}
                       />
                     </View>
                     <View style={styles.statsRow}>
