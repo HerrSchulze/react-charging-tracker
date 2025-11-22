@@ -3,7 +3,7 @@ import { FlatList, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card as PaperCard, Text, IconButton } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useChargingSessionStore } from '../store/chargingSessionStore';
 import { TravelEventRepository } from '../services/TravelEventRepository';
 import {
@@ -19,12 +19,14 @@ import { COLORS, SPACING, PAGINATION } from '../constants';
 
 export const ChargingSessionsList: React.FC = () => {
   const router = useRouter();
+  const { travelEventId } = useLocalSearchParams<{ travelEventId?: string }>();
   const {
     chargingSessions,
     loading,
     error,
     currentPage,
     loadChargingSessions,
+    loadChargingSessionsByTravelEvent,
     deleteChargingSession,
     setCurrentPage,
     clearError,
@@ -32,12 +34,32 @@ export const ChargingSessionsList: React.FC = () => {
 
   const [eventNames, setEventNames] = useState<Record<string, string>>({});
   const [errorVisible, setErrorVisible] = useState(false);
+  const [travelEventName, setTravelEventName] = useState<string | null>(null);
 
   useFocusEffect(
     React.useCallback(() => {
-      loadChargingSessions(0);
-    }, [])
+      if (travelEventId) {
+        loadChargingSessionsByTravelEvent(travelEventId, 0);
+      } else {
+        loadChargingSessions(0);
+      }
+    }, [travelEventId])
   );
+
+  useEffect(() => {
+    if (travelEventId) {
+      const loadEventName = async () => {
+        const repo = new TravelEventRepository();
+        const event = await repo.getById(travelEventId);
+        if (event) {
+          setTravelEventName(event.name);
+        }
+      };
+      loadEventName();
+    } else {
+      setTravelEventName(null);
+    }
+  }, [travelEventId]);
 
   useEffect(() => {
     if (error) {
@@ -51,7 +73,7 @@ export const ChargingSessionsList: React.FC = () => {
       const names: Record<string, string> = {};
 
       for (const session of chargingSessions) {
-        if (session.travelEventId) {
+        if (session.travelEventId && !travelEventId) {
           const event = await repo.getById(session.travelEventId);
           if (event) {
             names[session.travelEventId] = event.name;
@@ -65,7 +87,7 @@ export const ChargingSessionsList: React.FC = () => {
     if (chargingSessions.length > 0) {
       loadEventNames();
     }
-  }, [chargingSessions]);
+  }, [chargingSessions, travelEventId]);
 
   const handleDelete = async (id: string) => {
     await deleteChargingSession(id);
@@ -73,13 +95,21 @@ export const ChargingSessionsList: React.FC = () => {
 
   const handleNextPage = () => {
     setCurrentPage(currentPage + 1);
-    loadChargingSessions(currentPage + 1);
+    if (travelEventId) {
+      loadChargingSessionsByTravelEvent(travelEventId, currentPage + 1);
+    } else {
+      loadChargingSessions(currentPage + 1);
+    }
   };
 
   const handlePreviousPage = () => {
     if (currentPage > 0) {
       setCurrentPage(currentPage - 1);
-      loadChargingSessions(currentPage - 1);
+      if (travelEventId) {
+        loadChargingSessionsByTravelEvent(travelEventId, currentPage - 1);
+      } else {
+        loadChargingSessions(currentPage - 1);
+      }
     }
   };
 
@@ -87,10 +117,23 @@ export const ChargingSessionsList: React.FC = () => {
     return <LoadingSpinner />;
   }
 
+  const screenTitle = travelEventName ? `${travelEventName} - Sessions` : 'Charging Sessions';
+
   return (
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
       <View style={styles.titleBar}>
-        <Text variant="headlineSmall" style={styles.screenTitle}>Charging Sessions</Text>
+        <View style={styles.titleContent}>
+          <Text variant="headlineSmall" style={styles.screenTitle}>{screenTitle}</Text>
+          {travelEventId && (
+            <IconButton
+              icon="close"
+              iconColor={COLORS.textSecondary}
+              size={20}
+              style={styles.clearButton}
+              onPress={() => router.replace('/(tabs)/charging-sessions')}
+            />
+          )}
+        </View>
       </View>
       <ErrorMessage
         message={error || ''}
@@ -141,7 +184,7 @@ export const ChargingSessionsList: React.FC = () => {
                         €{roundToTwoDecimals(costPerKwh)}/kWh
                       </Text>
                     </View>
-                    {eventName && (
+                    {eventName && !travelEventId && (
                       <Text variant="labelSmall" style={styles.event}>
                         {eventName}
                       </Text>
@@ -221,8 +264,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
   },
+  titleContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   screenTitle: {
     fontWeight: 'bold',
     color: COLORS.text,
+    flex: 1,
+  },
+  clearButton: {
+    margin: 0,
+    padding: 0,
   },
 });

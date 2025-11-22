@@ -111,6 +111,21 @@ export class ChargingSessionRepository {
     }
   }
 
+  async getByTravelEventIdPaginated(travelEventId: string, page: number, pageSize: number): Promise<ChargingSession[]> {
+    try {
+      const db = getDatabase();
+      const offset = page * pageSize;
+      const results = await db.getAllAsync<ChargingSession>(
+        'SELECT * FROM charging_sessions WHERE travelEventId = ? ORDER BY date DESC LIMIT ? OFFSET ?',
+        [travelEventId, pageSize, offset]
+      );
+      return results;
+    } catch (error) {
+      logError(error, 'ChargingSessionRepository.getByTravelEventIdPaginated');
+      throw new AppError('DB_ERROR', 'Failed to fetch charging sessions', error as Error);
+    }
+  }
+
   async getTotalCostByTravelEventId(travelEventId: string): Promise<number> {
     try {
       const db = getDatabase();

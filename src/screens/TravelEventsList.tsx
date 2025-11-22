@@ -125,13 +125,22 @@ export const TravelEventsList: React.FC = () => {
                       <Text variant="labelSmall" style={styles.subtitle}>
                         {formatDate(item.startDate)}
                       </Text>
-                      <IconButton
-                        icon="delete"
-                        iconColor={COLORS.error}
-                        size={18}
-                        style={styles.deleteButton}
-                        onPress={() => handleDelete(item.id)}
-                      />
+                      <View style={styles.buttonRow}>
+                        <IconButton
+                          icon="lightning-bolt"
+                          iconColor={COLORS.primary}
+                          size={18}
+                          style={styles.actionButton}
+                          onPress={() => router.push(`/(tabs)/charging-sessions?travelEventId=${item.id}`)}
+                        />
+                        <IconButton
+                          icon="delete"
+                          iconColor={COLORS.error}
+                          size={18}
+                          style={styles.deleteButton}
+                          onPress={() => handleDelete(item.id)}
+                        />
+                      </View>
                     </View>
                     <View style={styles.statsRow}>
                       <Text variant="labelLarge" style={styles.stats}>
@@ -192,6 +201,13 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: COLORS.textSecondary,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+  },
+  actionButton: {
+    margin: 0,
+    padding: 0,
   },
   statsRow: {
     flexDirection: 'row',
