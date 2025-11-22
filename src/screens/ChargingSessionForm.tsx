@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from 'react-native-paper';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -37,6 +37,7 @@ export const ChargingSessionForm: React.FC = () => {
   const [validationError, setValidationError] = useState<string | null>(null);
   const [errorVisible, setErrorVisible] = useState(false);
   const [cardProviders, setCardProviders] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const loadSessionData = async () => {
     const repo = new ChargingSessionRepository();
@@ -76,11 +77,18 @@ export const ChargingSessionForm: React.FC = () => {
     setChargeCardProvider(text);
     
     if (text.length > 0) {
-      const match = findBestMatch(text, cardProviders);
-      if (match && match !== text) {
-        setChargeCardProvider(match);
-      }
+      const filtered = cardProviders.filter(provider =>
+        provider.toLowerCase().includes(text.toLowerCase())
+      );
+      setSuggestions(filtered);
+    } else {
+      setSuggestions([]);
     }
+  };
+
+  const handleSelectSuggestion = (provider: string) => {
+    setChargeCardProvider(provider);
+    setSuggestions([]);
   };
 
   const handleSubmit = async () => {
@@ -181,12 +189,31 @@ export const ChargingSessionForm: React.FC = () => {
           error={validationError?.includes('cost') ? validationError : undefined}
         />
 
-        <TextInput
-          label="Charge Card Provider"
-          value={chargeCardProvider}
-          onChangeText={handleChargeCardChange}
-          placeholder="Start typing to autocomplete..."
-        />
+        <View>
+          <TextInput
+            label="Charge Card Provider"
+            value={chargeCardProvider}
+            onChangeText={handleChargeCardChange}
+            placeholder="Start typing..."
+          />
+          {suggestions.length > 0 && (
+            <View style={styles.suggestionsContainer}>
+              <FlatList
+                data={suggestions}
+                keyExtractor={(item) => item}
+                scrollEnabled={false}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.suggestionItem}
+                    onPress={() => handleSelectSuggestion(item)}
+                  >
+                    <Text style={styles.suggestionText}>{item}</Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          )}
+        </View>
 
         {eventOptions.length > 0 && (
           <View style={styles.dropdownContainer}>
@@ -226,6 +253,28 @@ const styles = StyleSheet.create({
     padding: SPACING.md,
     paddingTop: 0,
     paddingBottom: 100,
+  },
+  suggestionsContainer: {
+    marginHorizontal: SPACING.md,
+    marginTop: -SPACING.sm,
+    marginBottom: SPACING.sm,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderTopWidth: 0,
+    borderBottomLeftRadius: 4,
+    borderBottomRightRadius: 4,
+    maxHeight: 150,
+  },
+  suggestionItem: {
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  suggestionText: {
+    color: COLORS.text,
+    fontSize: 14,
   },
   dropdownContainer: {
     marginVertical: SPACING.sm,

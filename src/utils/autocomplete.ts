@@ -21,3 +21,16 @@ export const findBestMatch = (input: string, options: string[]): string | null =
 
   return null;
 };
+
+export const getAutocompleteSuffix = (input: string, match: string): string => {
+  if (!match || !input) return '';
+  
+  const lowerInput = input.toLowerCase();
+  const lowerMatch = match.toLowerCase();
+  
+  if (lowerMatch.startsWith(lowerInput)) {
+    return match.substring(input.length);
+  }
+  
+  return '';
+};
