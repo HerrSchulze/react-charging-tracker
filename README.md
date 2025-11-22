@@ -7,6 +7,9 @@ A React Native Expo app for tracking EV charging sessions and travel events with
 - **Travel Events Management**: Create and track travel events with initial costs
 - **Charging Sessions**: Log charging sessions with energy and cost details
 - **Cost Analysis**: Calculate cost per kWh and total expenses per trip
+- **Session Filtering**: Filter charging sessions by travel event
+- **Deletion Protection**: Prevent accidental deletion of travel events with connected sessions
+- **Confirmation Dialogs**: User confirmations for all delete operations
 - **Data Export**: Export charging sessions and travel events as CSV files
 - **Offline-First**: SQLite database for local data storage
 - **Petrol-Themed UI**: Modern design with React Native Paper components
@@ -49,7 +52,7 @@ src/
 
 1. Install dependencies:
    ```bash
-   npm install
+   npm install --legacy-peer-deps
    ```
 
 2. Start the development server:
@@ -67,12 +70,15 @@ src/
 ### Travel Events
 - Create travel events with name, description, start date, and initial costs
 - View aggregated charging costs and energy per trip
-- Edit or delete events
+- Click the lightning bolt icon to view all charging sessions for that event
+- Edit or delete events (delete only available if no connected sessions)
 
 ### Charging Sessions
 - Log charging sessions with station, location, energy, and cost
 - Link sessions to travel events
 - Track cost per kWh for each session
+- Filter sessions by travel event using the query parameter
+- Clear filter with the close button in the title bar
 
 ### Export Data
 - Export all charging sessions as CSV
@@ -102,6 +108,22 @@ npm run format     # Format code with Prettier
 
 ### charging_sessions
 - id, date, stationProvider, location, energyCharged, totalCost, chargeCardProvider, travelEventId, createdAt, updatedAt
+
+## Version History
+
+### v1.2.0
+- Added charging session filtering by travel event
+- Added deletion protection for travel events with connected sessions
+- Added confirmation dialogs for all delete operations
+- Charging Sessions is now the default start screen
+
+### v1.1.1
+- Charging Sessions is now the default start screen
+
+### v1.1.0
+- UI improvements and refinements
+- Security enhancements with input validation
+- Bug fixes and code quality improvements
 
 ## License
 
