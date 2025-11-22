@@ -17,6 +17,7 @@ import {
   ErrorMessage,
 } from '../components';
 import { validateChargingSession } from '../utils/validation';
+import { findBestMatch } from '../utils/autocomplete';
 import { COLORS, SPACING } from '../constants';
 
 export const ChargingSessionForm: React.FC = () => {
@@ -35,6 +36,7 @@ export const ChargingSessionForm: React.FC = () => {
   const [travelEventId, setTravelEventId] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [errorVisible, setErrorVisible] = useState(false);
+  const [cardProviders, setCardProviders] = useState<string[]>([]);
 
   const loadSessionData = async () => {
     const repo = new ChargingSessionRepository();
@@ -50,8 +52,15 @@ export const ChargingSessionForm: React.FC = () => {
     }
   };
 
+  const loadCardProviders = async () => {
+    const repo = new ChargingSessionRepository();
+    const providers = await repo.getUniqueChargeCardProviders();
+    setCardProviders(providers);
+  };
+
   useEffect(() => {
     loadTravelEvents(0);
+    loadCardProviders();
     if (id && typeof id === 'string') {
       loadSessionData();
     }
@@ -62,6 +71,17 @@ export const ChargingSessionForm: React.FC = () => {
       setErrorVisible(true);
     }
   }, [error]);
+
+  const handleChargeCardChange = (text: string) => {
+    setChargeCardProvider(text);
+    
+    if (text.length > 0) {
+      const match = findBestMatch(text, cardProviders);
+      if (match && match !== text) {
+        setChargeCardProvider(match);
+      }
+    }
+  };
 
   const handleSubmit = async () => {
     const energy = parseFloat(energyCharged) || 0;
@@ -164,7 +184,8 @@ export const ChargingSessionForm: React.FC = () => {
         <TextInput
           label="Charge Card Provider"
           value={chargeCardProvider}
-          onChangeText={setChargeCardProvider}
+          onChangeText={handleChargeCardChange}
+          placeholder="Start typing to autocomplete..."
         />
 
         {eventOptions.length > 0 && (

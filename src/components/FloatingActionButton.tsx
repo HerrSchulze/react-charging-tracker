@@ -30,6 +30,6 @@ const styles = StyleSheet.create({
     margin: SPACING.lg,
     right: 0,
     bottom: SPACING.lg,
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.secondary,
   },
 });

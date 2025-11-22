@@ -153,4 +153,17 @@ export class ChargingSessionRepository {
       throw new AppError('DB_ERROR', 'Failed to calculate total energy', error as Error);
     }
   }
+
+  async getUniqueChargeCardProviders(): Promise<string[]> {
+    try {
+      const db = getDatabase();
+      const results = await db.getAllAsync<{ chargeCardProvider: string }>(
+        'SELECT DISTINCT chargeCardProvider FROM charging_sessions WHERE chargeCardProvider IS NOT NULL AND chargeCardProvider != "" ORDER BY chargeCardProvider'
+      );
+      return results.map(r => r.chargeCardProvider);
+    } catch (error) {
+      logError(error, 'ChargingSessionRepository.getUniqueChargeCardProviders');
+      throw new AppError('DB_ERROR', 'Failed to fetch charge card providers', error as Error);
+    }
+  }
 }
