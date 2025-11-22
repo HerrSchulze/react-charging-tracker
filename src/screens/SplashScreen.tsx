@@ -1,25 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { COLORS } from '../constants';
-import * as Application from 'expo-application';
 
 interface SplashScreenProps {
   onFinish: () => void;
 }
 
+const APP_VERSION = '1.1.0';
+
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
-  const [version, setVersion] = useState('v1.1.0');
-
-  useEffect(() => {
-    const getVersion = async () => {
-      const appVersion = Application.nativeApplicationVersion;
-      setVersion(`v${appVersion}`);
-    };
-    getVersion();
-  }, []);
-
   useEffect(() => {
     const timer = setTimeout(() => {
       onFinish();
@@ -32,7 +23,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
     <View style={styles.container}>
       <MaterialCommunityIcons name="lightning-bolt" size={80} color={COLORS.tertiary} />
       <Text style={styles.title}>Charging Tracker</Text>
-      <Text style={styles.version}>{version}</Text>
+      <Text style={styles.version}>v{APP_VERSION}</Text>
     </View>
   );
 };
