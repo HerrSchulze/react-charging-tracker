@@ -8,7 +8,7 @@ interface SplashScreenProps {
   onFinish: () => void;
 }
 
-const APP_VERSION = '1.1.1';
+const APP_VERSION = '1.2.0';
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   useEffect(() => {
