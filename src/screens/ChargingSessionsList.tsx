@@ -123,7 +123,7 @@ export const ChargingSessionsList: React.FC = () => {
                     </Text>
                     <View style={styles.dateRow}>
                       <Text variant="labelSmall" style={styles.subtitle}>
-                        {formatDate(item.date)}
+                        {formatDate(item.date)}  • {item.chargeCardProvider}
                       </Text>
                       <IconButton
                         icon="delete"
@@ -134,10 +134,10 @@ export const ChargingSessionsList: React.FC = () => {
                       />
                     </View>
                     <View style={styles.statsRow}>
-                      <Text variant="labelSmall" style={styles.stats}>
+                      <Text variant="labelLarge" style={styles.stats}>
                         {roundToTwoDecimals(item.energyCharged)} kWh • €{roundToTwoDecimals(item.totalCost)} •    
                       </Text>
-                      <Text variant="labelSmall" style={[styles.stats, styles.bold]}>
+                      <Text variant="labelLarge" style={[styles.stats, styles.bold]}>
                         €{roundToTwoDecimals(costPerKwh)}/kWh
                       </Text>
                     </View>

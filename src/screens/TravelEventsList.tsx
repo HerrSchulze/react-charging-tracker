@@ -134,10 +134,10 @@ export const TravelEventsList: React.FC = () => {
                       />
                     </View>
                     <View style={styles.statsRow}>
-                      <Text variant="labelSmall" style={styles.stats}>
+                      <Text variant="labelLarge" style={styles.stats}>
                         {roundToTwoDecimals(totalEnergy)} kWh • €{roundToTwoDecimals(totalCost)} •    
                       </Text>
-                      <Text variant="labelSmall" style={[styles.stats, styles.bold]}>
+                      <Text variant="labelLarge" style={[styles.stats, styles.bold]}>
                         €{roundToTwoDecimals(costPerKwh)}/kWh
                       </Text>
                     </View>
