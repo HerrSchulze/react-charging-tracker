@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Stack } from 'expo-router';
+import { Slot } from 'expo-router';
 import { PaperProvider } from 'react-native-paper';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { initializeDatabase } from '../src/services/database';
@@ -22,7 +22,7 @@ export default function RootLayout() {
     <ErrorBoundary>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <PaperProvider theme={theme}>
-          <Stack screenOptions={{ headerShown: false }} />
+          <Slot />
         </PaperProvider>
       </GestureHandlerRootView>
     </ErrorBoundary>
