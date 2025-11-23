@@ -11,13 +11,15 @@ interface EmptyStateProps {
   message: string;
 }
 
+const ICON_SIZE = 64;
+
 export const EmptyState: React.FC<EmptyStateProps> = ({
   icon = 'inbox',
   message,
 }) => {
   return (
     <View style={styles.container}>
-      <MaterialCommunityIcons name={icon} size={64} color={COLORS.textSecondary} />
+      <MaterialCommunityIcons name={icon} size={ICON_SIZE} color={COLORS.textSecondary} />
       <Text style={styles.message}>{message}</Text>
     </View>
   );
