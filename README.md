@@ -113,6 +113,10 @@ npm run format     # Format code with Prettier
 
 ## Version History
 
+### v1.4.1
+- Fixed routing structure to resolve "unmatched route" error on app startup
+- Simplified navigation initialization for better stability
+
 ### v1.4.0
 - Fixed critical security vulnerabilities (CWE-117 log injection)
 - Improved error handling in performance monitoring and memoization utilities
