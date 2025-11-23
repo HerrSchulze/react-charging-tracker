@@ -26,7 +26,6 @@ export default function TabsLayout() {
           },
         }}
         sceneContainerStyle={{ backgroundColor: COLORS.background }}
-        initialRouteName="charging-sessions"
       >
         <Tabs.Screen
           name="travel-events"
