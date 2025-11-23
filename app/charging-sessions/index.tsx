@@ -1,3 +1,3 @@
-import { ChargingSessionsList } from '../../../src/screens/ChargingSessionsList';
+import { ChargingSessionsList } from '../../src/screens/ChargingSessionsList';
 
 export default ChargingSessionsList;
