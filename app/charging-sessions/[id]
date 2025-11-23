@@ -1,0 +1,17 @@
+import { ChargingSessionForm } from '../../../../src/screens/ChargingSessionForm';
+
+export default ChargingSessionForm;
+import { ChargingSessionDetail } from '../../../../src/screens/ChargingSessionDetail';
+
+export default ChargingSessionDetail;
+import { Stack } from 'expo-router';
+
+export default function ChargingSessionDetailLayout() {
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="form" />
+    </Stack>
+  );
+}
+
