@@ -21,19 +21,36 @@ export const handleError = (error: unknown): string => {
   return 'An unexpected error occurred';
 };
 
+const sanitizeContext = (context: string): string => {
+  return context.replace(/[\n\r]/g, ' ').slice(0, 100);
+};
+
+const sanitizeCode = (code: string): string => {
+  return code.replace(/[\n\r]/g, ' ').slice(0, 50);
+};
+
+const sanitizeMessage = (message: string): string => {
+  return message.replace(/[\n\r]/g, ' ').slice(0, 200);
+};
+
+const sanitizeUnknownError = (error: unknown): string => {
+  const errorStr = String(error).replace(/[\n\r]/g, ' ').slice(0, 200);
+  return errorStr;
+};
+
 export const logError = (error: unknown, context?: string): void => {
   const timestamp = new Date().toISOString();
-  const contextStr = context ? ` [${context}]` : '';
+  const contextStr = context ? ` [${sanitizeContext(context)}]` : '';
 
   if (error instanceof AppError) {
-    console.error(`[${timestamp}]${contextStr} AppError (${error.code}):`, error.message);
+    console.error(`[${timestamp}]${contextStr} AppError (${sanitizeCode(error.code)}):`, sanitizeMessage(error.message));
     if (error.originalError) {
-      console.error('Original error:', error.originalError);
+      console.error('Original error:', sanitizeMessage(error.originalError.message));
     }
   } else if (error instanceof Error) {
-    console.error(`[${timestamp}]${contextStr} Error:`, error.message);
+    console.error(`[${timestamp}]${contextStr} Error:`, sanitizeMessage(error.message));
   } else {
-    console.error(`[${timestamp}]${contextStr} Unknown error:`, error);
+    console.error(`[${timestamp}]${contextStr} Unknown error:`, sanitizeUnknownError(error));
   }
 };
 

@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
   },
   bold: {
     fontWeight: 'bold',
-    marginLeft: 4
+    marginLeft: 4,
   },
   description: {
     color: COLORS.textSecondary,

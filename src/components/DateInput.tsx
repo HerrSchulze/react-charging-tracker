@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { TextInput as PaperTextInput, Text } from 'react-native-paper';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { formatDate, parseDate } from '../utils/dateUtils';
 import { COLORS, SPACING } from '../constants';
 
@@ -21,7 +21,7 @@ export const DateInput: React.FC<DateInputProps> = ({
   const [showPicker, setShowPicker] = useState(false);
   const [dateString, setDateString] = useState(formatDate(value));
 
-  const handleDateChange = (event: any, selectedDate?: Date) => {
+  const handleDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     setShowPicker(false);
     if (selectedDate) {
       const timestamp = selectedDate.getTime();

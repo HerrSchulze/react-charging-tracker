@@ -8,10 +8,14 @@ export const memoize = <T extends (...args: any[]) => any>(fn: T): T => {
       return cache.get(key);
     }
 
-    const result = fn(...args);
-    cache.set(key, result);
-
-    return result;
+    try {
+      const result = fn(...args);
+      cache.set(key, result);
+      return result;
+    } catch (error) {
+      console.error('Memoized function error:', error);
+      throw error;
+    }
   }) as T;
 };
 
@@ -26,8 +30,13 @@ export const useMemoCallback = <T extends (...args: any[]) => any>(
     const depsChanged = !lastDeps.length || deps.some((dep, i) => dep !== lastDeps[i]);
 
     if (depsChanged) {
-      lastResult = fn(...args);
-      lastDeps = deps;
+      try {
+        lastResult = fn(...args);
+        lastDeps = deps;
+      } catch (error) {
+        console.error('Memo callback error:', error);
+        throw error;
+      }
     }
 
     return lastResult;

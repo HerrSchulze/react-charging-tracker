@@ -4,8 +4,10 @@ import { Text } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { COLORS, SPACING } from '../constants';
 
+type IconName = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
+
 interface EmptyStateProps {
-  icon?: string;
+  icon?: IconName;
   message: string;
 }
 
