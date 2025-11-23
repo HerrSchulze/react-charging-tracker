@@ -113,6 +113,12 @@ npm run format     # Format code with Prettier
 
 ## Version History
 
+### v1.4.0
+- Fixed critical security vulnerabilities (CWE-117 log injection)
+- Improved error handling in performance monitoring and memoization utilities
+- Enhanced code quality and maintainability with proper type definitions
+- Fixed routing issues for proper app initialization
+
 ### v1.3.0
 - Added autocomplete for charge card provider field with dropdown suggestions
 - Swapped tab order (Travel Events first, Charging Sessions second)
