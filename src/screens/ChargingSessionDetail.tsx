@@ -2,18 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, Card as PaperCard } from 'react-native-paper';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ChargingSessionRepository } from '../services/ChargingSessionRepository';
 import { TravelEventRepository } from '../services/TravelEventRepository';
 import { ChargingSession, TravelEvent } from '../types';
 import { AppBar, LoadingSpinner } from '../components';
+import { useNavigationStore } from '../store/navigationStore';
 import { formatDate } from '../utils/dateUtils';
 import { calculateCostPerKwh, roundToTwoDecimals } from '../utils/calculations';
 import { COLORS, SPACING } from '../constants';
 
 export const ChargingSessionDetail: React.FC = () => {
-  const router = useRouter();
-  const { id } = useLocalSearchParams();
+  const { selectedId: id, setCurrentScreen } = useNavigationStore();
   const [session, setSession] = useState<ChargingSession | null>(null);
   const [event, setEvent] = useState<TravelEvent | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,7 +36,7 @@ export const ChargingSessionDetail: React.FC = () => {
   };
 
   useEffect(() => {
-    if (id && typeof id === 'string') {
+    if (id) {
       loadSessionData();
     }
   }, [id]);
@@ -48,8 +47,8 @@ export const ChargingSessionDetail: React.FC = () => {
 
   if (!session) {
     return (
-      <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
-        <AppBar title="Session Details" onBack={() => router.back()} />
+      <SafeAreaView style={styles.container} edges={['left', 'right']}>
+        <AppBar title="Session Details" onBack={() => setCurrentScreen('list')} />
         <View style={styles.center}>
           <Text>Session not found</Text>
         </View>
@@ -60,11 +59,11 @@ export const ChargingSessionDetail: React.FC = () => {
   const costPerKwh = calculateCostPerKwh(session.totalCost, session.energyCharged);
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={['left', 'right']}>
       <AppBar
         title={session.stationProvider}
-        onBack={() => router.back()}
-        onAction={() => router.push(`/(tabs)/charging-sessions/${id}/form`)}
+        onBack={() => setCurrentScreen('list')}
+        onAction={() => setCurrentScreen('form')}
         actionIcon="pencil"
       />
 

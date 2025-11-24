@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card as PaperCard, Text, IconButton } from 'react-native-paper';
-import { useFocusEffect } from '@react-navigation/native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+
 import { useChargingSessionStore } from '../store/chargingSessionStore';
+import { useNavigationStore } from '../store/navigationStore';
 import { TravelEventRepository } from '../services/TravelEventRepository';
 import {
   FloatingActionButton,
@@ -19,8 +19,7 @@ import { calculateCostPerKwh, roundToTwoDecimals } from '../utils/calculations';
 import { COLORS, SPACING, PAGINATION } from '../constants';
 
 export const ChargingSessionsList: React.FC = () => {
-  const router = useRouter();
-  const { travelEventId } = useLocalSearchParams<{ travelEventId?: string }>();
+  const { setCurrentScreen, setSelectedId, filterTravelEventId, setFilterTravelEventId } = useNavigationStore();
   const {
     chargingSessions,
     loading,
@@ -39,21 +38,19 @@ export const ChargingSessionsList: React.FC = () => {
   const [dialogVisible, setDialogVisible] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      if (travelEventId) {
-        loadChargingSessionsByTravelEvent(travelEventId, 0);
-      } else {
-        loadChargingSessions(0);
-      }
-    }, [travelEventId])
-  );
+  useEffect(() => {
+    if (filterTravelEventId) {
+      loadChargingSessionsByTravelEvent(filterTravelEventId, 0);
+    } else {
+      loadChargingSessions(0);
+    }
+  }, [filterTravelEventId]);
 
   useEffect(() => {
-    if (travelEventId) {
+    if (filterTravelEventId) {
       const loadEventName = async () => {
         const repo = new TravelEventRepository();
-        const event = await repo.getById(travelEventId);
+        const event = await repo.getById(filterTravelEventId);
         if (event) {
           setTravelEventName(event.name);
         }
@@ -62,7 +59,7 @@ export const ChargingSessionsList: React.FC = () => {
     } else {
       setTravelEventName(null);
     }
-  }, [travelEventId]);
+  }, [filterTravelEventId]);
 
   useEffect(() => {
     if (error) {
@@ -76,7 +73,7 @@ export const ChargingSessionsList: React.FC = () => {
       const names: Record<string, string> = {};
 
       for (const session of chargingSessions) {
-        if (session.travelEventId && !travelEventId) {
+        if (session.travelEventId && !filterTravelEventId) {
           const event = await repo.getById(session.travelEventId);
           if (event) {
             names[session.travelEventId] = event.name;
@@ -90,7 +87,7 @@ export const ChargingSessionsList: React.FC = () => {
     if (chargingSessions.length > 0) {
       loadEventNames();
     }
-  }, [chargingSessions, travelEventId]);
+  }, [chargingSessions, filterTravelEventId]);
 
   const handleDeletePress = (id: string) => {
     setPendingDeleteId(id);
@@ -107,8 +104,8 @@ export const ChargingSessionsList: React.FC = () => {
 
   const handleNextPage = () => {
     setCurrentPage(currentPage + 1);
-    if (travelEventId) {
-      loadChargingSessionsByTravelEvent(travelEventId, currentPage + 1);
+    if (filterTravelEventId) {
+      loadChargingSessionsByTravelEvent(filterTravelEventId, currentPage + 1);
     } else {
       loadChargingSessions(currentPage + 1);
     }
@@ -117,8 +114,8 @@ export const ChargingSessionsList: React.FC = () => {
   const handlePreviousPage = () => {
     if (currentPage > 0) {
       setCurrentPage(currentPage - 1);
-      if (travelEventId) {
-        loadChargingSessionsByTravelEvent(travelEventId, currentPage - 1);
+      if (filterTravelEventId) {
+        loadChargingSessionsByTravelEvent(filterTravelEventId, currentPage - 1);
       } else {
         loadChargingSessions(currentPage - 1);
       }
@@ -132,21 +129,19 @@ export const ChargingSessionsList: React.FC = () => {
   const screenTitle = travelEventName ? `${travelEventName} - Sessions` : 'Charging Sessions';
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
-      <View style={styles.titleBar}>
-        <View style={styles.titleContent}>
-          <Text variant="headlineSmall" style={styles.screenTitle}>{screenTitle}</Text>
-          {travelEventId && (
-            <IconButton
-              icon="close"
-              iconColor={COLORS.textSecondary}
-              size={20}
-              style={styles.clearButton}
-              onPress={() => router.replace('/(tabs)/charging-sessions')}
-            />
-          )}
+    <SafeAreaView style={styles.container} edges={['left', 'right']}>
+      {filterTravelEventId && (
+        <View style={styles.filterBar}>
+          <Text variant="labelSmall" style={styles.filterText}>{screenTitle}</Text>
+          <IconButton
+            icon="close"
+            iconColor={COLORS.textSecondary}
+            size={20}
+            style={styles.clearButton}
+            onPress={() => setFilterTravelEventId(null)}
+          />
         </View>
-      </View>
+      )}
       <ErrorMessage
         message={error || ''}
         visible={errorVisible}
@@ -181,7 +176,10 @@ export const ChargingSessionsList: React.FC = () => {
               return (
                 <PaperCard
                   style={styles.card}
-                  onPress={() => router.push(`/(tabs)/charging-sessions/${item.id}`)}
+                  onPress={() => {
+                    setSelectedId(item.id);
+                    setCurrentScreen('detail');
+                  }}
                 >
                   <PaperCard.Content style={styles.content}>
                     <Text variant="titleSmall" style={styles.title}>
@@ -207,7 +205,7 @@ export const ChargingSessionsList: React.FC = () => {
                         €{roundToTwoDecimals(costPerKwh)}/kWh
                       </Text>
                     </View>
-                    {eventName && !travelEventId && (
+                    {eventName && !filterTravelEventId && (
                       <Text variant="labelSmall" style={styles.event}>
                         {eventName}
                       </Text>
@@ -227,7 +225,10 @@ export const ChargingSessionsList: React.FC = () => {
         </>
       )}
 
-      <FloatingActionButton style={styles.fab} onPress={() => router.push('/(tabs)/charging-sessions/form')} />
+      <FloatingActionButton style={styles.fab} onPress={() => {
+        setSelectedId(null);
+        setCurrentScreen('form');
+      }} />
     </SafeAreaView>
   );
 };
@@ -279,22 +280,19 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   fab: {
-    marginBottom: -20,
+    marginBottom: 50,
   },
-  titleBar: {
+  filterBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
   },
-  titleContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  screenTitle: {
-    fontWeight: 'bold',
-    color: COLORS.text,
+  filterText: {
+    color: COLORS.textSecondary,
     flex: 1,
   },
   clearButton: {

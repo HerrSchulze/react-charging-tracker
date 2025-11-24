@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from 'react-native-paper';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTravelEventStore } from '../store/travelEventStore';
+import { useNavigationStore } from '../store/navigationStore';
 import { TravelEventRepository } from '../services/TravelEventRepository';
 import {
   AppBar,
@@ -17,8 +17,7 @@ import { validateTravelEvent } from '../utils/validation';
 import { COLORS, SPACING } from '../constants';
 
 export const TravelEventForm: React.FC = () => {
-  const router = useRouter();
-  const { id } = useLocalSearchParams();
+  const { selectedId: id, setCurrentScreen } = useNavigationStore();
   const { insertTravelEvent, updateTravelEvent, loading, error, clearError } =
     useTravelEventStore();
 
@@ -41,8 +40,13 @@ export const TravelEventForm: React.FC = () => {
   };
 
   useEffect(() => {
-    if (id && typeof id === 'string') {
+    if (id) {
       loadEventData();
+    } else {
+      setName('');
+      setDescription('');
+      setStartDate(Date.now());
+      setInitialCosts('0');
     }
   }, [id]);
 
@@ -82,12 +86,12 @@ export const TravelEventForm: React.FC = () => {
       });
     }
 
-    router.back();
+    setCurrentScreen('list');
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
-      <AppBar title={id ? 'Edit Event' : 'Create Event'} onBack={() => router.back()} />
+    <SafeAreaView style={styles.container} edges={['left', 'right']}>
+      <AppBar title={id ? 'Edit Event' : 'Create Event'} onBack={() => setCurrentScreen('list')} />
       <ErrorMessage
         message={error || ''}
         visible={errorVisible}
@@ -96,42 +100,43 @@ export const TravelEventForm: React.FC = () => {
           clearError();
         }}
       />
+      <KeyboardAvoidingView style={styles.keyboard} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ScrollView contentContainerStyle={styles.content}>
+          <TextInput
+            label="Event Name"
+            value={name}
+            onChangeText={setName}
+            error={validationError?.includes('Name') ? validationError : undefined}
+          />
 
-      <ScrollView style={styles.content} scrollEnabled={true} nestedScrollEnabled={true} contentContainerStyle={styles.scrollContent}>
-        <TextInput
-          label="Event Name"
-          value={name}
-          onChangeText={setName}
-          error={validationError?.includes('Name') ? validationError : undefined}
-        />
+          <TextInput
+            label="Description"
+            value={description}
+            onChangeText={setDescription}
+            multiline
+            numberOfLines={4}
+          />
 
-        <TextInput
-          label="Description"
-          value={description}
-          onChangeText={setDescription}
-          multiline
-          numberOfLines={4}
-        />
+          <DateInput label="Start Date" value={startDate} onChangeDate={setStartDate} />
 
-        <DateInput label="Start Date" value={startDate} onChangeDate={setStartDate} />
+          <DecimalInput
+            label="Initial Costs (€)"
+            value={initialCosts}
+            onChangeText={setInitialCosts}
+            error={validationError?.includes('costs') ? validationError : undefined}
+          />
 
-        <DecimalInput
-          label="Initial Costs (€)"
-          value={initialCosts}
-          onChangeText={setInitialCosts}
-          error={validationError?.includes('costs') ? validationError : undefined}
-        />
+          {validationError && (
+            <Text style={styles.error}>{validationError}</Text>
+          )}
 
-        {validationError && (
-          <Text style={styles.error}>{validationError}</Text>
-        )}
-
-        <FormButton
-          label={id ? 'Update Event' : 'Create Event'}
-          onPress={handleSubmit}
-          loading={loading}
-        />
-      </ScrollView>
+          <FormButton
+            label={id ? 'Update Event' : 'Create Event'}
+            onPress={handleSubmit}
+            loading={loading}
+          />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -141,12 +146,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
-  content: {
+  keyboard: {
     flex: 1,
   },
-  scrollContent: {
+  content: {
     padding: SPACING.md,
-    paddingTop: 0,
     paddingBottom: 100,
   },
   error: {

@@ -2,18 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, Card as PaperCard } from 'react-native-paper';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 import { TravelEventRepository } from '../services/TravelEventRepository';
 import { ChargingSessionRepository } from '../services/ChargingSessionRepository';
 import { TravelEvent } from '../types';
 import { AppBar, LoadingSpinner } from '../components';
+import { useNavigationStore } from '../store/navigationStore';
 import { formatDate } from '../utils/dateUtils';
 import { calculateCostPerKwh, roundToTwoDecimals } from '../utils/calculations';
 import { COLORS, SPACING } from '../constants';
 
 export const TravelEventDetail: React.FC = () => {
-  const router = useRouter();
-  const { id } = useLocalSearchParams();
+  const { selectedId: id, setCurrentScreen } = useNavigationStore();
   const [event, setEvent] = useState<TravelEvent | null>(null);
   const [totalChargingCost, setTotalChargingCost] = useState(0);
   const [totalEnergy, setTotalEnergy] = useState(0);
@@ -39,7 +38,7 @@ export const TravelEventDetail: React.FC = () => {
   };
 
   useEffect(() => {
-    if (id && typeof id === 'string') {
+    if (id) {
       loadEventData();
     }
   }, [id]);
@@ -50,8 +49,8 @@ export const TravelEventDetail: React.FC = () => {
 
   if (!event) {
     return (
-      <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
-        <AppBar title="Event Details" onBack={() => router.back()} />
+      <SafeAreaView style={styles.container} edges={['left', 'right']}>
+        <AppBar title="Event Details" onBack={() => setCurrentScreen('list')} />
         <View style={styles.center}>
           <Text>Event not found</Text>
         </View>
@@ -63,11 +62,11 @@ export const TravelEventDetail: React.FC = () => {
   const costPerKwh = calculateCostPerKwh(totalCost, totalEnergy);
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={['left', 'right']}>
       <AppBar
         title={event.name}
-        onBack={() => router.back()}
-        onAction={() => router.push(`/(tabs)/travel-events/${id}/form`)}
+        onBack={() => setCurrentScreen('list')}
+        onAction={() => setCurrentScreen('form')}
         actionIcon="pencil"
       />
 

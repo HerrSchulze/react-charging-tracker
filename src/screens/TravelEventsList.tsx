@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card as PaperCard, Text, IconButton } from 'react-native-paper';
-import { useFocusEffect } from '@react-navigation/native';
-import { useRouter } from 'expo-router';
+
 import { useTravelEventStore } from '../store/travelEventStore';
+import { useNavigationStore } from '../store/navigationStore';
 import { ChargingSessionRepository } from '../services/ChargingSessionRepository';
 import {
   FloatingActionButton,
@@ -19,7 +19,7 @@ import { calculateCostPerKwh, roundToTwoDecimals } from '../utils/calculations';
 import { COLORS, SPACING, PAGINATION } from '../constants';
 
 export const TravelEventsList: React.FC = () => {
-  const router = useRouter();
+  const { setCurrentScreen, setSelectedId, setFilterTravelEventId } = useNavigationStore();
   const {
     travelEvents,
     loading,
@@ -37,11 +37,9 @@ export const TravelEventsList: React.FC = () => {
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [sessionCounts, setSessionCounts] = useState<Record<string, number>>({});
 
-  useFocusEffect(
-    React.useCallback(() => {
-      loadTravelEvents(0);
-    }, [])
-  );
+  useEffect(() => {
+    loadTravelEvents(0);
+  }, []);
 
   useEffect(() => {
     if (error) {
@@ -114,10 +112,7 @@ export const TravelEventsList: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
-      <View style={styles.titleBar}>
-        <Text variant="headlineSmall" style={styles.screenTitle}>Travel Events</Text>
-      </View>
+    <SafeAreaView style={styles.container} edges={['left', 'right']}>
       <ErrorMessage
         message={error || ''}
         visible={errorVisible}
@@ -156,7 +151,10 @@ export const TravelEventsList: React.FC = () => {
               return (
                 <PaperCard
                   style={styles.card}
-                  onPress={() => router.push(`/(tabs)/travel-events/${item.id}`)}
+                  onPress={() => {
+                    setSelectedId(item.id);
+                    setCurrentScreen('detail');
+                  }}
                 >
                   <PaperCard.Content style={styles.content}>
                     <Text variant="titleSmall" style={styles.title}>
@@ -172,7 +170,10 @@ export const TravelEventsList: React.FC = () => {
                           iconColor={COLORS.primary}
                           size={18}
                           style={styles.actionButton}
-                          onPress={() => router.push(`/(tabs)/charging-sessions?travelEventId=${item.id}`)}
+                          onPress={() => {
+                            setFilterTravelEventId(item.id);
+                            useNavigationStore.setState({ activeTab: 'charging-sessions', currentScreen: 'list' });
+                          }}
                         />
                         <IconButton
                           icon="delete"
@@ -212,7 +213,10 @@ export const TravelEventsList: React.FC = () => {
         </>
       )}
 
-      <FloatingActionButton style={styles.fab} onPress={() => router.push('/(tabs)/travel-events/form')} />
+      <FloatingActionButton style={styles.fab} onPress={() => {
+        setSelectedId(null);
+        setCurrentScreen('form');
+      }} />
     </SafeAreaView>
   );
 };
@@ -271,16 +275,7 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   fab: {
-    marginBottom: -20,
+    marginBottom: 50,
   },
-  titleBar: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  screenTitle: {
-    fontWeight: 'bold',
-    color: COLORS.text,
-  },
+
 });

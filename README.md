@@ -113,6 +113,15 @@ npm run format     # Format code with Prettier
 
 ## Version History
 
+### v1.5.0
+- Simplified navigation architecture using state-based screen rendering instead of complex Expo Router nesting
+- Replaced Tabs component with custom tab bar for better control and reliability
+- Fixed keyboard overlap issues on form screens with KeyboardAvoidingView
+- Improved form scrolling and layout
+- Fixed dropdown component to work reliably multiple times
+- Enhanced session filtering persistence across tab switches
+- Improved form data loading for edit operations
+
 ### v1.4.1
 - Fixed routing structure to resolve "unmatched route" error on app startup
 - Simplified navigation initialization for better stability

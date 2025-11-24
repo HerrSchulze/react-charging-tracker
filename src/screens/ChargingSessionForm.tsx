@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, ScrollView, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, ScrollView, StyleSheet, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from 'react-native-paper';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useChargingSessionStore } from '../store/chargingSessionStore';
 import { useTravelEventStore } from '../store/travelEventStore';
+import { useNavigationStore } from '../store/navigationStore';
 import { ChargingSessionRepository } from '../services/ChargingSessionRepository';
 import { TravelEventRepository } from '../services/TravelEventRepository';
 import {
@@ -21,8 +21,7 @@ import { findBestMatch } from '../utils/autocomplete';
 import { COLORS, SPACING } from '../constants';
 
 export const ChargingSessionForm: React.FC = () => {
-  const router = useRouter();
-  const { id } = useLocalSearchParams();
+  const { selectedId: id, setCurrentScreen } = useNavigationStore();
   const { insertChargingSession, updateChargingSession, loading, error, clearError } =
     useChargingSessionStore();
   const { travelEvents, loadTravelEvents } = useTravelEventStore();
@@ -62,8 +61,19 @@ export const ChargingSessionForm: React.FC = () => {
   useEffect(() => {
     loadTravelEvents(0);
     loadCardProviders();
-    if (id && typeof id === 'string') {
+  }, []);
+
+  useEffect(() => {
+    if (id) {
       loadSessionData();
+    } else {
+      setDate(Date.now());
+      setStationProvider('');
+      setLocation('');
+      setEnergyCharged('');
+      setTotalCost('');
+      setChargeCardProvider('');
+      setTravelEventId(null);
     }
   }, [id]);
 
@@ -135,7 +145,7 @@ export const ChargingSessionForm: React.FC = () => {
       });
     }
 
-    router.back();
+    setCurrentScreen('list');
   };
 
   const eventOptions = travelEvents.map((event) => ({
@@ -144,10 +154,10 @@ export const ChargingSessionForm: React.FC = () => {
   }));
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={['left', 'right']}>
       <AppBar
         title={id ? 'Edit Session' : 'Create Session'}
-        onBack={() => router.back()}
+        onBack={() => setCurrentScreen('list')}
       />
       <ErrorMessage
         message={error || ''}
@@ -157,86 +167,88 @@ export const ChargingSessionForm: React.FC = () => {
           clearError();
         }}
       />
+      <KeyboardAvoidingView style={styles.keyboard} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ScrollView contentContainerStyle={styles.content}>
+          <DateInput label="Date" value={date} onChangeDate={setDate} />
 
-      <ScrollView style={styles.content} scrollEnabled={true} nestedScrollEnabled={true} contentContainerStyle={styles.scrollContent}>
-        <DateInput label="Date" value={date} onChangeDate={setDate} />
-
-        <TextInput
-          label="Station Provider"
-          value={stationProvider}
-          onChangeText={setStationProvider}
-          error={validationError?.includes('Station') ? validationError : undefined}
-        />
-
-        <TextInput
-          label="Location"
-          value={location}
-          onChangeText={setLocation}
-          error={validationError?.includes('Location') ? validationError : undefined}
-        />
-
-        <DecimalInput
-          label="Energy Charged (kWh)"
-          value={energyCharged}
-          onChangeText={setEnergyCharged}
-          error={validationError?.includes('Energy') ? validationError : undefined}
-        />
-
-        <DecimalInput
-          label="Total Cost (€)"
-          value={totalCost}
-          onChangeText={setTotalCost}
-          error={validationError?.includes('cost') ? validationError : undefined}
-        />
-
-        <View>
           <TextInput
-            label="Charge Card Provider"
-            value={chargeCardProvider}
-            onChangeText={handleChargeCardChange}
-            placeholder="Start typing..."
+            label="Station Provider"
+            value={stationProvider}
+            onChangeText={setStationProvider}
+            error={validationError?.includes('Station') ? validationError : undefined}
           />
-          {suggestions.length > 0 && (
-            <View style={styles.suggestionsContainer}>
-              <FlatList
-                data={suggestions}
-                keyExtractor={(item) => item}
-                scrollEnabled={false}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={styles.suggestionItem}
-                    onPress={() => handleSelectSuggestion(item)}
-                  >
-                    <Text style={styles.suggestionText}>{item}</Text>
-                  </TouchableOpacity>
-                )}
+
+          <TextInput
+            label="Location"
+            value={location}
+            onChangeText={setLocation}
+            error={validationError?.includes('Location') ? validationError : undefined}
+          />
+
+          <DecimalInput
+            label="Energy Charged (kWh)"
+            value={energyCharged}
+            onChangeText={setEnergyCharged}
+            error={validationError?.includes('Energy') ? validationError : undefined}
+          />
+
+          <DecimalInput
+            label="Total Cost (€)"
+            value={totalCost}
+            onChangeText={setTotalCost}
+            error={validationError?.includes('cost') ? validationError : undefined}
+          />
+
+          <View>
+            <TextInput
+              label="Charge Card Provider"
+              value={chargeCardProvider}
+              onChangeText={handleChargeCardChange}
+              placeholder="Start typing..."
+            />
+            {suggestions.length > 0 && (
+              <View style={styles.suggestionsContainer}>
+                <FlatList
+                  data={suggestions}
+                  keyExtractor={(item) => item}
+                  scrollEnabled={false}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.suggestionItem}
+                      onPress={() => handleSelectSuggestion(item)}
+                    >
+                      <Text style={styles.suggestionText}>{item}</Text>
+                    </TouchableOpacity>
+                  )}
+                />
+              </View>
+            )}
+          </View>
+
+          {eventOptions.length > 0 && (
+            <View style={styles.dropdownContainer}>
+              <Text style={styles.label}>Travel Event (Optional)</Text>
+              <Dropdown
+                key={`dropdown-${id}`}
+                label="Select Event"
+                value={travelEventId || ''}
+                options={[{ label: 'None', value: '' }, ...eventOptions]}
+                onSelect={(value) => setTravelEventId(value || null)}
               />
             </View>
           )}
-        </View>
 
-        {eventOptions.length > 0 && (
-          <View style={styles.dropdownContainer}>
-            <Text style={styles.label}>Travel Event (Optional)</Text>
-            <Dropdown
-              label="Select Event"
-              value={travelEventId || ''}
-              options={[{ label: 'None', value: '' }, ...eventOptions]}
-              onSelect={(value) => setTravelEventId(value || null)}
-            />
-          </View>
-        )}
+          {validationError && (
+            <Text style={styles.error}>{validationError}</Text>
+          )}
 
-        {validationError && (
-          <Text style={styles.error}>{validationError}</Text>
-        )}
-
-        <FormButton
-          label={id ? 'Update Session' : 'Create Session'}
-          onPress={handleSubmit}
-          loading={loading}
-        />
-      </ScrollView>
+          <FormButton
+            label={id ? 'Update Session' : 'Create Session'}
+            onPress={handleSubmit}
+            loading={loading}
+          />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -246,12 +258,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
-  content: {
+  keyboard: {
     flex: 1,
   },
-  scrollContent: {
+  content: {
     padding: SPACING.md,
-    paddingTop: 0,
     paddingBottom: 100,
   },
   suggestionsContainer: {

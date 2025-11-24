@@ -79,7 +79,7 @@ export const ExportScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={['left', 'right']}>
       <View style={styles.titleBar}>
         <Text variant="headlineSmall" style={styles.screenTitle}>Export Data</Text>
       </View>
